@@ -57,7 +57,8 @@ jobs:
 
       - name: Build welcome-member-email-service
         run: |
-          echo "STEP_ID=welcome-member-email-service" >> $GITHUB_ENV
+          STEP_ID=welcome-member-email-service
+          echo "STEP_ID=${STEP_ID}" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
           # build
           buildevents cmd $TRACE_ID $STEP_ID 'build' -- \
