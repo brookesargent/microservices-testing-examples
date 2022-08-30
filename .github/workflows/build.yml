@@ -61,7 +61,8 @@ jobs:
 
       - name: Build service
         run: |
-          echo "STEP_ID=${{ matrix.service }}" >> $GITHUB_ENV
+          STEP_ID=service_build-${{ matrix.service }}
+          echo "STEP_ID=${STEP_ID}" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
           .github/scripts/${{ matrix.service }}-build.sh
 
