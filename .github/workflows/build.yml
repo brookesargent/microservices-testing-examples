@@ -59,11 +59,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Build service
+      - name: Start build step
         run: |
           STEP_ID=service_build-${{ matrix.service }}
           echo "STEP_ID=${STEP_ID}" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
+
+      - name: Build service
+        run: |
           .github/scripts/${{ matrix.service }}-build.sh
 
       - name: "Honeycomb: Finalise service span"
