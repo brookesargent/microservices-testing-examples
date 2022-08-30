@@ -19,6 +19,25 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: "Honeycomb: setup recording"
+        uses: honeycombio/gha-buildevents@v1
+        with:
+          # Required: a Honeycomb API key - needed to send traces.
+          #   must be set in your GitHub repository under Settings > Secrets > Actions
+          apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
+
+          # Required: the Honeycomb dataset to send traces to.
+          dataset: gha-buildevents_integration
+
+          # Required: the job status, this will be used in the post section and sent
+          #   as status of the trace. Must always be ${{ job.status }}.
+          job-status: ${{ job.status }}
+
+          # Optional: this should only be used in combination with matrix builds. Set
+          # this to a value uniquely describing each matrix configuration.
+          # matrix-key: ${{ matrix.service }}
+
+
       - name: Start dependencies with docker-compose
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml up -d
 
@@ -88,24 +107,6 @@ jobs:
           ## no need to run since it doesn't create any pacts
           # tag pacts as production
           docker run --rm --net host ${PACT_CLI_IMG} broker create-version-tag --pacticipant credit-score-service --version `git rev-parse --short HEAD` --tag prod --broker-base-url ${PACT_BROKER_URL} --broker-username=rw_user --broker-password=rw_pass
-
-      - name: Code Coverage Report
-        if: ${{ github.actor != 'dependabot[bot]' }}
-        env:
-          GIT_BRANCH: ${GITHUB_REF/refs\/heads\//}
-          JACOCO_SOURCE_PATH: credit-score-service/src/main/java special-membership-service/src/main/java welcome-member-email-service/src/main/java
-          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-        run: |
-          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-          chmod +x ./cc-test-reporter
-          ./cc-test-reporter format-coverage -t jacoco credit-score-service/target/site/jacoco/jacoco.xml -o coverage/credit-score-service-unit.json
-          ./cc-test-reporter format-coverage -t jacoco credit-score-service/target/site/jacoco-it/jacoco.xml -o coverage/credit-score-service-it.json
-          ./cc-test-reporter format-coverage -t jacoco special-membership-service/target/site/jacoco/jacoco.xml -o coverage/special-membership-service-unit.json
-          ./cc-test-reporter format-coverage -t jacoco special-membership-service/target/site/jacoco-it/jacoco.xml -o coverage/special-membership-service-it.json
-          ./cc-test-reporter format-coverage -t jacoco welcome-member-email-service/target/site/jacoco/jacoco.xml -o coverage/welcome-member-email-service-unit.json
-          ./cc-test-reporter format-coverage -t jacoco welcome-member-email-service/target/site/jacoco-it/jacoco.xml -o coverage/welcome-member-email-service-it.json
-          ./cc-test-reporter sum-coverage coverage/*.json -p 6
-          ./cc-test-reporter upload-coverage
 
       - name: Stop dependencies with docker-compose
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml down
