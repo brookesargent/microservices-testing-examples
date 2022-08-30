@@ -16,6 +16,11 @@ jobs:
     env:
       PACT_CLI_IMG: pactfoundation/pact-cli:0.12.3.0
       PACT_BROKER_URL: localhost:9292
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [welcome-member-email-service, special-membership-service, credit-score-service]
+
     steps:
       - uses: actions/checkout@v3
 
@@ -23,20 +28,19 @@ jobs:
         uses: honeycombio/gha-buildevents@v1
         with:
           # Required: a Honeycomb API key - needed to send traces.
-          #   must be set in your GitHub repository under Settings > Secrets > Actions
+          #           this must be set in your GitHub repository under Settings > Secrets > Actions
           apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
 
           # Required: the Honeycomb dataset to send traces to.
           dataset: gha-buildevents_integration
 
           # Required: the job status, this will be used in the post section and sent
-          #   as status of the trace. Must always be ${{ job.status }}.
+          #           as status of the trace. Must always be ${{ job.status }}.
           job-status: ${{ job.status }}
 
           # Optional: this should only be used in combination with matrix builds. Set
           # this to a value uniquely describing each matrix configuration.
-          # matrix-key: ${{ matrix.service }}
-
+          matrix-key: ${{ matrix.service }}
 
       - name: Start dependencies with docker-compose
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml up -d
@@ -55,82 +59,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Build welcome-member-email-service
+      - name: Build service
         run: |
-          STEP_ID=welcome-member-email-service
-          echo "STEP_ID=${STEP_ID}" >> $GITHUB_ENV
+          echo "STEP_ID=${{ matrix.service }}" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
-          # build
-          buildevents cmd $TRACE_ID $STEP_ID 'build' -- \
-            mvn clean verify -pl welcome-member-email-service -Pcode-coverage -Pstatic-code-analysis
-          # verify pacts
-          ## No pacts to verify
-          # create pacts
-          buildevents cmd $TRACE_ID $STEP_ID 'create pacts' -- \
-            mvn verify -pl welcome-member-email-service -Pconsumer-pacts
-          buildevents cmd $TRACE_ID $STEP_ID 'publish pacts' -- \
-            docker run --rm --net host -v `pwd`/welcome-member-email-service/target/pacts:/target/pacts ${PACT_CLI_IMG} publish /target/pacts --consumer-app-version `git rev-parse --short HEAD` --tag `git rev-parse --abbrev-ref HEAD` --broker-base-url ${PACT_BROKER_URL} --broker-username=rw_user --broker-password=rw_pass
-          # simulate that we run the providers' support pipelines
-          ## simulate that there is a prod version of the provider deployed
-          buildevents cmd $TRACE_ID $STEP_ID 'tag pacts for production' -- \
-            docker run --rm --net host ${PACT_CLI_IMG} broker create-version-tag --auto-create-version --pacticipant special-membership-service --version `git rev-parse --short HEAD` --tag prod --broker-base-url ${PACT_BROKER_URL} --broker-username=rw_user --broker-password=rw_pass
-          ## verify pacts of welcome member email service that were just published
-          buildevents cmd $TRACE_ID $STEP_ID 'verify published pacts' -- \
-            mvn verify -pl special-membership-service -Pprovider-pacts -Dpact.verifier.publishResults=true -Dpact.provider.version=`git rev-parse --short HEAD` -Dpactbroker.consumers=welcome-member-email-service -Dpactbroker.tags=`git rev-parse --abbrev-ref HEAD` -Dpactbroker.user=rw_user -Dpactbroker.pass=rw_pass
-          # meanwhile, this is happening in the welcome member email service pipeline
-          # can-i-deploy
-          buildevents cmd $TRACE_ID $STEP_ID 'pact verify can-i-deploy' -- \
-            docker run --rm --net host ${PACT_CLI_IMG} broker can-i-deploy -v --pacticipant welcome-member-email-service --version `git rev-parse --short HEAD` --to prod --broker-base-url ${PACT_BROKER_URL} --broker-username=rw_user --broker-password=rw_pass
-          # tag pacts as production
-          buildevents cmd $TRACE_ID $STEP_ID 'tag pacts as production' -- \
-            docker run --rm --net host ${PACT_CLI_IMG} broker create-version-tag --pacticipant welcome-member-email-service --version `git rev-parse --short HEAD` --tag prod --broker-base-url ${PACT_BROKER_URL} --broker-username=rw_user --broker-password=rw_pass
-      
-      - name: "Honeycomb: Finalise welcome-member-email-service span"
-        run: buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_ID
-        if: success() || failure()
+          .github/scripts/${{ matrix.service }}-build.sh
 
-      - name: Build special-membership-service
-        run: |
-          echo "STEP_ID=special-membership-service" >> $GITHUB_ENV
-          echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
-          # build
-          mvn clean verify -pl special-membership-service -Pcode-coverage -Pstatic-code-analysis
-          # verify pacts
-          mvn verify -pl special-membership-service -Pprovider-pacts -Dpact.verifier.publishResults=true -Dpact.provider.version=`git rev-parse --short HEAD` -Dpactbroker.tags=prod -Dpactbroker.user=rw_user -Dpactbroker.pass=rw_pass
-          # create pacts
-          mvn verify -pl special-membership-service -Pconsumer-pacts
-          docker run --rm --net host -v `pwd`/special-membership-service/target/pacts:/target/pacts ${PACT_CLI_IMG} publish /target/pacts --consumer-app-version `git rev-parse --short HEAD` --tag `git rev-parse --abbrev-ref HEAD` --broker-base-url ${PACT_BROKER_URL} --broker-username=rw_user --broker-password=rw_pass
-          # simulate that we run the providers' support pipelines
-          ## simulate that there is a prod version of the provider deployed
-          docker run --rm --net host ${PACT_CLI_IMG} broker create-version-tag --auto-create-version --pacticipant credit-score-service --version `git rev-parse --short HEAD` --tag prod --broker-base-url ${PACT_BROKER_URL} --broker-username=rw_user --broker-password=rw_pass
-          ## verify pacts of special membership service that were just published
-          mvn verify -pl credit-score-service -Pprovider-pacts -Dpact.verifier.publishResults=true -Dpact.provider.version=`git rev-parse --short HEAD` -Dpactbroker.consumers=special-membership-service -Dpactbroker.tags=`git rev-parse --abbrev-ref HEAD` -Dpactbroker.user=rw_user -Dpactbroker.pass=rw_pass
-          # meanwhile, this is happening in the special membership service pipeline
-          # can-i-deploy
-          docker run --rm --net host ${PACT_CLI_IMG} broker can-i-deploy -v --pacticipant special-membership-service --version `git rev-parse --short HEAD` --to prod --broker-base-url ${PACT_BROKER_URL} --broker-username=rw_user --broker-password=rw_pass
-          # tag pacts as production
-          docker run --rm --net host ${PACT_CLI_IMG} broker create-version-tag --pacticipant special-membership-service --version `git rev-parse --short HEAD` --tag prod --broker-base-url ${PACT_BROKER_URL} --broker-username=rw_user --broker-password=rw_pass
-
-      - name: "Honeycomb: Finalise special-membership-service span"
-        run: buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_ID
-        if: success() || failure()
-
-      - name: Build credit-score-service
-        run: |
-          echo "STEP_ID=credit-score-service" >> $GITHUB_ENV
-          echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
-          # build
-          mvn clean verify -pl credit-score-service -Pcode-coverage -Pstatic-code-analysis
-          # verify pacts
-          mvn verify -pl credit-score-service -Pprovider-pacts -Dpact.verifier.publishResults=true -Dpact.provider.version=`git rev-parse --short HEAD` -Dpactbroker.tags=prod -Dpactbroker.user=rw_user -Dpactbroker.pass=rw_pass
-          # create pacts
-          ## no pacts to create
-          # can-i-deploy
-          ## no need to run since it doesn't create any pacts
-          # tag pacts as production
-          docker run --rm --net host ${PACT_CLI_IMG} broker create-version-tag --pacticipant credit-score-service --version `git rev-parse --short HEAD` --tag prod --broker-base-url ${PACT_BROKER_URL} --broker-username=rw_user --broker-password=rw_pass
-
-      - name: "Honeycomb: Finalise credit-score-service span"
+      - name: "Honeycomb: Finalise service span"
         run: buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_ID
         if: success() || failure()
 
