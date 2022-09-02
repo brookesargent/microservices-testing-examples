@@ -26,10 +26,10 @@ jobs:
 
       - name: Init trace
         run: |
-          id=$(2 ** 32)
+          echo "STEP_ID=$((2 ** 32))" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
-          echo "WORKFLOW_TRACE_ID=$GITHUB_REPOSITORY-$GITHUB_WORKFLOW-id" > $GITHUB_ENV
-          buildevents step $WORKFLOW_TRACE_ID id $STEP_START gha-init
+          echo "WORKFLOW_TRACE_ID=$GITHUB_REPOSITORY-$GITHUB_WORKFLOW-$STEP_ID" > $GITHUB_ENV
+          buildevents step $WORKFLOW_TRACE_ID $STEP_ID $STEP_START gha-init
     outputs:
       workflowTraceId: $TRACE_ID
 
