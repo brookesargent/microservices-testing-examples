@@ -103,6 +103,7 @@ jobs:
   end-trace:
     runs-on: ubuntu-latest
     needs: [start-trace, build]
+    if: ${{ always() && !cancelled() }}
     steps:
       - name: Cache buildevents
         uses: actions/cache@v3
