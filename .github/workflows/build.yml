@@ -13,15 +13,14 @@ jobs:
   start-trace:
     runs-on: ubuntu-latest
     steps:
-      - name: "Honeycomb: setup trace"
+      - name: "setup buildevents"
         uses: honeycombio/gha-buildevents@brookesargent.workflow-scoped-trace
         with:
           apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
           dataset: gha-buildevents_integration
           job-status: ${{ job.status }}
-      - uses: actions/upload-artifact@master
-        with:
-          name: buildevents
+    outputs:
+      workflowTraceId: $TRACE_ID
 
   build:
     runs-on: ubuntu-latest
@@ -35,9 +34,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/download-artifact@master
+
+      - name: "setup buildevents"
+        uses: honeycombio/gha-buildevents@brookesargent.workflow-scoped-trace
         with:
-          name: buildevents
+          apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
+          dataset: gha-buildevents_integration
+          job-status: ${{ job.status }}
 
       - name: Start dependencies with docker-compose
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml up -d
@@ -61,6 +64,7 @@ jobs:
           STEP_ID=service_build-${{ matrix.service }}
           echo "STEP_ID=${STEP_ID}" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
+          echo "WORKFLOW_TRACE_ID=${{starttrace.outputs.workflowTraceId}" >> $GITHUB_ENV
 
       - name: Build service
         run: |
