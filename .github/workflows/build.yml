@@ -28,13 +28,13 @@ jobs:
         run: |
           echo "STEP_ID=${{ github.run_id }}-${{ github.run_attempt }}" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
-          echo "WORKFLOW_TRACE_ID=$GITHUB_REPOSITORY-$GITHUB_WORKFLOW-$STEP_ID" >> $GITHUB_ENV
+          echo "TRACE_ID=$GITHUB_REPOSITORY-$GITHUB_WORKFLOW-$STEP_ID" >> $GITHUB_ENV
 
       - name: Init trace
         run: |
-          buildevents step $WORKFLOW_TRACE_ID $STEP_ID $STEP_START gha-init
+          buildevents step $TRACE_ID $STEP_ID $STEP_START gha-init
     outputs:
-      workflowTraceId: $WORKFLOW_TRACE_ID
+      traceId: $TRACE_ID
 
   build:
     runs-on: ubuntu-latest
@@ -81,7 +81,7 @@ jobs:
           STEP_ID=service_build-${{ matrix.service }}
           echo "STEP_ID=${STEP_ID}" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
-          echo "WORKFLOW_TRACE_ID=${{needs.start-trace.outputs.workflowTraceId}}" >> $GITHUB_ENV
+          echo "WORKFLOW_TRACE_ID=${{needs.start-trace.outputs.traceId}}" >> $GITHUB_ENV
 
       - name: Build service
         run: |
