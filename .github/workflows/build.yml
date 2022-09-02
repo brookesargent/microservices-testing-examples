@@ -26,7 +26,7 @@ jobs:
 
       - name: Set variables
         run: |
-          echo "STEP_ID=1" >> $GITHUB_ENV
+          echo "STEP_ID=${{ github.run_id }}-${{ github.run_attempt }}" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
           echo "WORKFLOW_TRACE_ID=$GITHUB_REPOSITORY-$GITHUB_WORKFLOW-$STEP_ID" >> $GITHUB_ENV
 
@@ -34,7 +34,7 @@ jobs:
         run: |
           buildevents step $WORKFLOW_TRACE_ID $STEP_ID $STEP_START gha-init
     outputs:
-      workflowTraceId: $TRACE_ID
+      workflowTraceId: $WORKFLOW_TRACE_ID
 
   build:
     runs-on: ubuntu-latest
