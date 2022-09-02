@@ -120,4 +120,4 @@ jobs:
           echo "TRACE_ID=${{env.TRACE_ID}}" >> $GITHUB_ENV
       
       - name: Send trace
-        run: buildevents build $TRACE_ID $STEP_START
+        run: buildevents build $TRACE_ID $STEP_START success
