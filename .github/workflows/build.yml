@@ -12,6 +12,7 @@ on:
 env:
   BUILDEVENT_APIKEY: ${{ secrets.BUILDEVENTS_APIKEY }}
   BUILDEVENT_DATASET: gha-buildevents_integration
+  TRACE_ID: $GITHUB_REPOSITORY-$GITHUB_WORKFLOW-${{ github.run_id }}-${{ github.run_attempt }}
 
 jobs:
   start-trace:
@@ -98,3 +99,24 @@ jobs:
       - name: Stop dependencies with docker-compose
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml down
         if: always()
+
+  end-trace:
+    runs-on: ubuntu-latest
+    needs: [start-trace, build]
+    steps:
+      - name: Cache buildevents
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/bin/buildevents
+          key: ${{ runner.os }}-buildevents
+
+      - name: chmod buildevents
+        run: sudo chmod 755 /usr/local/bin/buildevents
+
+      - name: Set vars 
+        run: |
+          echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
+          echo "TRACE_ID=${{env.TRACE_ID}}" >> $GITHUB_ENV
+      
+      - name: Send trace
+        run: buildevents build $TRACE_ID $STEP_START
