@@ -71,7 +71,7 @@ jobs:
           .github/scripts/${{ matrix.service }}-build.sh
 
       - name: "Honeycomb: Finalise service span"
-        run: buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_ID
+        run: buildevents step $WORKFLOW_TRACE_ID $STEP_ID $STEP_START $STEP_ID
         if: success() || failure()
 
       - name: Stop dependencies with docker-compose
