@@ -34,7 +34,7 @@ jobs:
         run: |
           buildevents step $TRACE_ID $STEP_ID $STEP_START gha-init
     outputs:
-      traceId: $TRACE_ID
+      traceId: "$TRACE_ID"
 
   build:
     runs-on: ubuntu-latest
