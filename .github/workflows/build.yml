@@ -13,6 +13,11 @@ jobs:
   start-trace:
     runs-on: ubuntu-latest
     steps:
+      - name: Cache buildevents
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/work/_temp/buildevents
+          key: ${{ runner.os }}-buildevents
       - name: "setup buildevents"
         uses: honeycombio/gha-buildevents@brookesargent.workflow-scoped-trace
         with:
@@ -36,12 +41,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: "setup buildevents"
-        uses: honeycombio/gha-buildevents@brookesargent.workflow-scoped-trace
+      - name: Cache buildevents
+        uses: actions/cache@v3
         with:
-          apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
-          dataset: gha-buildevents_integration
-          job-status: ${{ job.status }}
+          path: /home/runner/work/_temp/buildevents
+          key: ${{ runner.os }}-buildevents
 
       - name: Start dependencies with docker-compose
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml up -d
