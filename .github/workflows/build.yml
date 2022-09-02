@@ -36,9 +36,9 @@ jobs:
       
       - name: echo outputs
         run: echo ${{ steps.step1.outputs }}
-        
+
     outputs:
-      traceId: "$TRACE_ID"
+      traceId: $GITHUB_REPOSITORY-$GITHUB_WORKFLOW-${{ github.run_id }}-${{ github.run_attempt }}
 
   build:
     runs-on: ubuntu-latest
