@@ -24,12 +24,14 @@ jobs:
           sudo curl -L -o /usr/local/bin/buildevents https://github.com/honeycombio/buildevents/releases/download/v0.4.9/buildevents-linux-amd64
           sudo chmod 755 /usr/local/bin/buildevents
 
-      - name: Init trace
+      - name: Set variables
         run: |
           echo "STEP_ID=$((2 ** 32))" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
           echo "WORKFLOW_TRACE_ID=$GITHUB_REPOSITORY-$GITHUB_WORKFLOW-$STEP_ID" > $GITHUB_ENV
-          buildevents step $WORKFLOW_TRACE_ID $STEP_ID $STEP_START gha-init
+
+      - name: Init trace
+        run: buildevents step $WORKFLOW_TRACE_ID $STEP_ID $STEP_START gha-init
     outputs:
       workflowTraceId: $TRACE_ID
 
