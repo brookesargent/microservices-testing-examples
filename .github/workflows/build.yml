@@ -26,7 +26,7 @@ jobs:
 
       - name: Set variables
         run: |
-          echo "STEP_ID=$((2 ** 32))" >> $GITHUB_ENV
+          echo "STEP_ID=$(2 ** 32)" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
           echo "WORKFLOW_TRACE_ID=$GITHUB_REPOSITORY-$GITHUB_WORKFLOW-$STEP_ID" > $GITHUB_ENV
 
