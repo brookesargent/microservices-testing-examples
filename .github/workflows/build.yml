@@ -31,8 +31,12 @@ jobs:
           echo "TRACE_ID=$GITHUB_REPOSITORY-$GITHUB_WORKFLOW-${{ github.run_id }}-${{ github.run_attempt }}" >> $GITHUB_ENV
 
       - name: Init trace
-        run: |
-          buildevents step $TRACE_ID $STEP_ID $STEP_START gha-init
+        id: step1
+        run: buildevents step $TRACE_ID $STEP_ID $STEP_START gha-init
+      
+      - name: echo outputs
+        run: echo ${{ steps.step1.outputs }}
+        
     outputs:
       traceId: "$TRACE_ID"
 
