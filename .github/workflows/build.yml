@@ -9,6 +9,10 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  BUILDEVENT_APIKEY: ${{ secrets.BUILDEVENTS_APIKEY }}
+  BUILDEVENT_DATASET: gha-buildevents_integration
+
 jobs:
   start-trace:
     runs-on: ubuntu-latest
@@ -31,12 +35,8 @@ jobs:
           echo "TRACE_ID=$GITHUB_REPOSITORY-$GITHUB_WORKFLOW-${{ github.run_id }}-${{ github.run_attempt }}" >> $GITHUB_ENV
 
       - name: Init trace
-        id: step1
         run: buildevents step $TRACE_ID $STEP_ID $STEP_START gha-init
       
-      - name: echo outputs
-        run: echo ${{ steps.step1.outputs }}
-
     outputs:
       traceId: $GITHUB_REPOSITORY-$GITHUB_WORKFLOW-${{ github.run_id }}-${{ github.run_attempt }}
 
@@ -52,12 +52,6 @@ jobs:
         service: [welcome-member-email-service, special-membership-service, credit-score-service]
 
     steps:
-      - name: set trace id
-        run: echo "TRACE_ID=${{needs.start-trace.outputs.traceId}}" >> $GITHUB_ENV
-
-      - name: test
-        run: echo $TRACE_ID
-
       - uses: actions/checkout@v3
 
       - name: Cache buildevents
