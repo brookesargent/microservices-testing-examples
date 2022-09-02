@@ -64,7 +64,7 @@ jobs:
           STEP_ID=service_build-${{ matrix.service }}
           echo "STEP_ID=${STEP_ID}" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
-          echo "WORKFLOW_TRACE_ID=${{starttrace.outputs.workflowTraceId}}" >> $GITHUB_ENV
+          echo "WORKFLOW_TRACE_ID=${{needs.start-trace.outputs.workflowTraceId}}" >> $GITHUB_ENV
 
       - name: Build service
         run: |
