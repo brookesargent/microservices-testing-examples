@@ -16,14 +16,20 @@ jobs:
       - name: Cache buildevents
         uses: actions/cache@v3
         with:
-          path: /home/runner/work/_temp/buildevents
+          path: /usr/local/bin/buildevents
           key: ${{ runner.os }}-buildevents
-      - name: "setup buildevents"
-        uses: honeycombio/gha-buildevents@brookesargent.workflow-scoped-trace
-        with:
-          apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
-          dataset: gha-buildevents_integration
-          job-status: ${{ job.status }}
+
+      - name: Install buildevents
+        run: |
+          sudo curl -L -o /usr/local/bin/buildevents https://github.com/honeycombio/buildevents/releases/download/v0.4.9/buildevents-linux-amd64
+          sudo chmod 755 /usr/local/bin/buildevents
+
+      - name: Init trace
+        run: |
+          id=$(2 ** 32)
+          echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
+          echo "WORKFLOW_TRACE_ID=$GITHUB_REPOSITORY-$GITHUB_WORKFLOW-id" > $GITHUB_ENV
+          buildevents step $WORKFLOW_TRACE_ID id $STEP_START gha-init
     outputs:
       workflowTraceId: $TRACE_ID
 
@@ -44,8 +50,11 @@ jobs:
       - name: Cache buildevents
         uses: actions/cache@v3
         with:
-          path: /home/runner/work/_temp/buildevents
+          path: /usr/local/bin/buildevents
           key: ${{ runner.os }}-buildevents
+
+      - name: chmod buildevents
+        run: sudo chmod 755 /usr/local/bin/buildevents
 
       - name: Start dependencies with docker-compose
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml up -d
