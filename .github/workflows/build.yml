@@ -31,7 +31,7 @@ jobs:
           echo "WORKFLOW_TRACE_ID=$GITHUB_REPOSITORY-$GITHUB_WORKFLOW-$STEP_ID" > $GITHUB_ENV
 
       - name: Init trace
-        run: buildevents step $WORKFLOW_TRACE_ID $STEP_ID $STEP_START gha-init
+        run: buildevents step $WORKFLOW_TRACE_ID ${{ env.STEP_ID }} ${{ env.STEP_START }} gha-init
     outputs:
       workflowTraceId: $TRACE_ID
 
