@@ -52,7 +52,7 @@ jobs:
           STEP_ID=service_build-${{ matrix.service }}
           echo "STEP_ID=${STEP_ID}" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
-          echo "TRACE_ID=${{needs.start-trace.outputs.trace-id}}" >> $GITHUB_ENV
+          echo "TRACE_ID=${{steps.buildevents.outputs.trace-id}}" >> $GITHUB_ENV
       - name: Build service
         run: |
           .github/scripts/${{ matrix.service }}-build.sh
@@ -84,3 +84,4 @@ jobs:
          # Required: the job status, this will be used in the post section and sent
          #           as status of the trace. Must always be ${{ job.status }}.
          workflow-status: ${{ env.WORKFLOW_CONCLUSION }}
+         trace-id: ${{ needs.build.outputs.trace-id }}
