@@ -51,7 +51,7 @@ jobs:
           key: ${{needs.start-trace.outputs.cache-key}}
 
       - name: chmod buildevents
-        run: sudo chmod 755 /usr/local/bin/buildevents
+        run: sudo chmod 755 ${{ needs.start-trace.outputs.cache-path }}
 
       - name: Start dependencies with docker-compose
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml up -d
@@ -97,7 +97,7 @@ jobs:
           key: ${{needs.start-trace.outputs.cache-key}}
 
       - name: chmod buildevents
-        run: sudo chmod 755 /usr/local/bin/buildevents
+        run: sudo chmod 755 ${{ needs.start-trace.outputs.cache-path }}
 
       - name: Set vars 
         run: |
