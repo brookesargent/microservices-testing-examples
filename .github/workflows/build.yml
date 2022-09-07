@@ -10,28 +10,6 @@ on:
     branches: [ master ]
 
 jobs:
-  start-trace:
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Honeycomb: setup recording"
-        id: start-trace
-        uses: honeycombio/gha-buildevents@brookesargent.multi-job-support
-        with:
-          # Required: a Honeycomb API key - needed to send traces.
-          #           this must be set in your GitHub repository under Settings > Secrets > Actions
-          apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
-          # Required: the Honeycomb dataset to send traces to.
-          dataset: gha-buildevents_integration
-          # Required: the job status, this will be used in the post section and sent
-          #           as status of the trace. Must always be ${{ job.status }}.
-          job-status: ${{ job.status }}
-          multi-job-workflow: 'true'
-    outputs:
-      trace-id: ${{ steps.start-trace.outputs.trace-id }}
-      cache-path: ${{ steps.start-trace.outputs.cache-path }}
-      cache-key: ${{ steps.start-trace.outputs.cache-key }}
-    
-
   build:
     runs-on: ubuntu-latest
     needs: start-trace
@@ -43,15 +21,18 @@ jobs:
       matrix:
         service: [welcome-member-email-service, special-membership-service, credit-score-service]
     steps:
-      - uses: actions/checkout@v3
-      - name: Cache buildevents
-        uses: actions/cache@v3
+      - name: "Honeycomb: setup recording"
+        id: buildevents
+        uses: honeycombio/gha-buildevents@brookesargent.multi-job-support
         with:
-          path: ${{needs.start-trace.outputs.cache-path}}
-          key: ${{needs.start-trace.outputs.cache-key}}
-
-      - name: chmod buildevents
-        run: sudo chmod 755 ${{ needs.start-trace.outputs.cache-path }}
+          # Required: a Honeycomb API key - needed to send traces.
+          #           this must be set in your GitHub repository under Settings > Secrets > Actions
+          apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
+          # Required: the Honeycomb dataset to send traces to.
+          dataset: gha-buildevents_integration
+          # Required: the job status, this will be used in the post section and sent
+          #           as status of the trace. Must always be ${{ job.status }}.
+          job-status: ${{ job.status }}
 
       - name: Start dependencies with docker-compose
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml up -d
@@ -85,24 +66,24 @@ jobs:
       - name: Stop dependencies with docker-compose
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml down
         if: always()
+    outputs:
+      trace-id: ${{ steps.buildevents.outputs.trace-id }}
+
   end-trace:
     runs-on: ubuntu-latest
     needs: [build]
-    if: ${{ always() && !cancelled() }}
+    if: ${{ always() }}
     steps:
-      - name: Cache buildevents
-        uses: actions/cache@v3
-        with:
-          path: ${{needs.start-trace.outputs.cache-path}}
-          key: ${{needs.start-trace.outputs.cache-key}}
+     - uses: technote-space/workflow-conclusion-action@v3
 
-      - name: chmod buildevents
-        run: sudo chmod 755 ${{ needs.start-trace.outputs.cache-path }}
-
-      - name: Set vars 
-        run: |
-          echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
-          echo "TRACE_ID=${{needs.start-trace.outputs.trace-id}}" >> $GITHUB_ENV
-      
-      - name: Send trace
-        run: buildevents build $TRACE_ID $STEP_START success
+     - name: "Honeycomb: install buildevents"
+       uses: honeycombio/gha-buildevents@brookesargent.multi-job-support
+       with:
+         # Required: a Honeycomb API key - needed to send traces.
+         #           this must be set in your GitHub repository under Settings > Secrets > Actions
+         apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
+        # Required: the Honeycomb dataset to send traces to.
+         dataset: gha-buildevents_integration
+         # Required: the job status, this will be used in the post section and sent
+         #           as status of the trace. Must always be ${{ job.status }}.
+         workflow-status: ${{ env.WORKFLOW_CONCLUSION }}
