@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Honeycomb: setup recording"
+        id: start-trace
         uses: honeycombio/gha-buildevents@brookesargent.multi-job-support
         with:
           # Required: a Honeycomb API key - needed to send traces.
@@ -25,6 +26,10 @@ jobs:
           #           as status of the trace. Must always be ${{ job.status }}.
           job-status: ${{ job.status }}
           multi-job-workflow: 'true'
+    outputs:
+      trace-id: ${{ steps.start-trace.outputs.trace-id }}
+      cache-path: ${{ steps.start-trace.outputs.cache-path }}
+      cache-key: ${{ steps.start-trace.outputs.cache-key }}
     
 
   build:
