@@ -29,7 +29,6 @@ jobs:
           # Required: a Honeycomb API key - needed to send traces.
           #           this must be set in your GitHub repository under Settings > Secrets > Actions
           apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
-
           # Required: the Honeycomb dataset to send traces to.
           dataset: gha-buildevents_integration
 
