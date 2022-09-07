@@ -30,6 +30,7 @@ jobs:
           apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
           # Required: the Honeycomb dataset to send traces to.
           dataset: gha-buildevents_integration
+          matrix-key: ${{ matrix.service }}
 
       - name: Start dependencies with docker-compose
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml up -d
@@ -49,8 +50,7 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Start build step
         run: |
-          STEP_ID=service_build-${{ matrix.service }}
-          echo "STEP_ID=${STEP_ID}" >> $GITHUB_ENV
+          echo "STEP_ID=${{ env.STEP_ID }}}" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
           echo "TRACE_ID=${{steps.buildevents.outputs.trace-id}}" >> $GITHUB_ENV
       - name: Build service
