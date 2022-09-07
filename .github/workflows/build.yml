@@ -30,6 +30,7 @@ jobs:
           apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
           # Required: the Honeycomb dataset to send traces to.
           dataset: gha-buildevents_integration
+          matrix-key: ${{ matrix.service }}
 
       - name: Start dependencies with docker-compose
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml up -d
