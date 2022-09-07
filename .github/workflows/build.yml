@@ -49,15 +49,15 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Start build step
         run: |
-          echo "STEP_NAME=service_build-${{ matrix.service }}" >> $GITHUB_ENV
-          echo "STEP_ID=${{ env.STEP_ID }}" >> $GITHUB_ENV
+          STEP_ID=service_build-${{ matrix.service }}
+          echo "STEP_ID=${STEP_ID}" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
           echo "TRACE_ID=${{steps.buildevents.outputs.trace-id}}" >> $GITHUB_ENV
       - name: Build service
         run: |
           .github/scripts/${{ matrix.service }}-build.sh
       - name: "Honeycomb: Finalise service span"
-        run: buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_NAME
+        run: buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_ID
         if: success() || failure()
 
       - name: Stop dependencies with docker-compose
