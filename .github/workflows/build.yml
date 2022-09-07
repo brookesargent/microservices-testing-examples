@@ -43,8 +43,8 @@ jobs:
       - name: Cache buildevents
         uses: actions/cache@v3
         with:
-          path: /usr/local/bin/buildevents
-          key: ${{ runner.os }}-buildevents
+          path: ${{needs.start-trace.outputs.cache-path}}
+          key: ${{needs.start-trace.outputs.cache-key}}
 
       - name: chmod buildevents
         run: sudo chmod 755 /usr/local/bin/buildevents
@@ -89,8 +89,8 @@ jobs:
       - name: Cache buildevents
         uses: actions/cache@v3
         with:
-          path: /usr/local/bin/buildevents
-          key: ${{ runner.os }}-buildevents
+          path: ${{needs.start-trace.outputs.cache-path}}
+          key: ${{needs.start-trace.outputs.cache-key}}
 
       - name: chmod buildevents
         run: sudo chmod 755 /usr/local/bin/buildevents
