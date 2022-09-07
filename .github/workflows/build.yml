@@ -49,7 +49,7 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Start build step
         run: |
-          echo "STEP_NAME=service_build-${{ matrix.service }}"
+          echo "STEP_NAME=service_build-${{ matrix.service }}" >> $GITHUB_ENV
           echo "STEP_ID=${{ env.STEP_ID }}" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
           echo "TRACE_ID=${{steps.buildevents.outputs.trace-id}}" >> $GITHUB_ENV
