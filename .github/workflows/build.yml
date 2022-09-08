@@ -60,7 +60,6 @@ jobs:
       - name: "Honeycomb: Finalise service span"
         run: buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_ID
         if: success() || failure()
-
       - name: Stop dependencies with docker-compose
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml down
         if: always()
