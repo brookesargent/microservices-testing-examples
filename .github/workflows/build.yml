@@ -74,7 +74,6 @@ jobs:
     if: ${{ always() }}
     steps:
      - uses: technote-space/workflow-conclusion-action@v3
-
      - name: "Honeycomb: install buildevents"
        uses: honeycombio/gha-buildevents@brookesargent.multi-job-support
        with:
