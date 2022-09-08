@@ -66,6 +66,7 @@ jobs:
         if: always()
     outputs:
       trace-id: ${{ steps.buildevents.outputs.trace-id }}
+      trace-start: ${{ steps.buildevents.outputs.start-timestamp}}
 
   end-trace:
     runs-on: ubuntu-latest
@@ -86,3 +87,4 @@ jobs:
          #           as status of the trace. Must always be ${{ job.status }}.
          workflow-status: ${{ env.WORKFLOW_CONCLUSION }}
          trace-id: ${{ needs.build.outputs.trace-id }}
+         trace-start: ${{ needs.build.outputs.trace-start }}
