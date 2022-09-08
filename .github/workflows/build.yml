@@ -18,7 +18,6 @@ jobs:
       PACT_BROKER_URL: localhost:9292
     steps:
       - uses: actions/checkout@v3
-
       - name: "Honeycomb: setup recording"
         uses: honeycombio/gha-buildevents@brookesargent.multi-job-support
         with:
