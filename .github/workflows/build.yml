@@ -56,7 +56,8 @@ jobs:
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
 
       - name: Set trace-start outputs
-        run: echo ::set-output name=trace-start::$(echo $STEP_START)
+        id: set-output
+        run: echo ::set-output name=trace-start::$STEP_START
         if: strategy.job-index == 0
 
       - name: Build service
@@ -69,7 +70,7 @@ jobs:
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml down
         if: always()
     outputs:
-      traceStart: ${{ steps.buildevents.outputs.trace-start }}
+      traceStart: ${{ steps.set-output.outputs.trace-start }}
 
   end-trace:
     runs-on: ubuntu-latest
