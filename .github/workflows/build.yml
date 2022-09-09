@@ -30,7 +30,7 @@ jobs:
 
           # Required: the job status, this will be used in the post section and sent
           #   as status of the trace. Must always be ${{ job.status }}.
-          status: ${{ job.status }}
+          job-status: ${{ job.status }}
 
       - name: Start dependencies with docker-compose
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml up -d
