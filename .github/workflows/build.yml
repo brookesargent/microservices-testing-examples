@@ -23,7 +23,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: "Honeycomb: setup recording"
-        id: buildevents
         uses: honeycombio/gha-buildevents@brookesargent.allow-multijob-trace
         with:
           # Required: a Honeycomb API key - needed to send traces.
@@ -57,7 +56,10 @@ jobs:
 
       - name: Set trace-start outputs
         id: set-output
-        run: echo ::set-output name=trace-start::$(echo $STEP_START)
+        run: |
+          echo ::set-output name=trace-start::$STEP_START
+          echo $STEP_START
+
         if: strategy.job-index == 0
 
       - name: Build service
