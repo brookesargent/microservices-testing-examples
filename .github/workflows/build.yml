@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         service: [welcome-member-email-service, special-membership-service, credit-score-service]
-        
+
     steps:
       - uses: actions/checkout@v3
       - name: "Honeycomb: setup recording"
@@ -56,7 +56,7 @@ jobs:
 
       - name: Set trace-start outputs
         run: echo "::set-output name=trace-start::$STEP_START"
-        if: strategy.job-index == 1
+        if: strategy.job-index == 0
 
       - name: Build service
         run: |
