@@ -66,8 +66,6 @@ jobs:
       - name: Stop dependencies with docker-compose
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml down
         if: always()
-    outputs:
-      trace-start: ${{ steps.buildevents.outputs.start-timestamp}}
 
   end-trace:
     runs-on: ubuntu-latest
