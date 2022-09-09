@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: "Honeycomb: setup recording"
-        uses: honeycombio/gha-buildevents@brookesargent.multi-job-support
+        uses: honeycombio/gha-buildevents@brookesargent.allow-multijob-trace 
         with:
           # Required: a Honeycomb API key - needed to send traces.
           #   must be set in your GitHub repository under Settings > Secrets > Actions
