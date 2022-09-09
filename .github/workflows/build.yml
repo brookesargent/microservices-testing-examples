@@ -88,7 +88,7 @@ jobs:
       - name: "Honeycomb: Finalize Build welcome-member-email-service"
         if: success() || failure()
         run: |
-          BUILDEVENTS_FILE="../local_buildevents.txt"
+          BUILDEVENT_FILE="../local_buildevents.txt"
           FS_COMPLETED=$(xpath -q -e 'failsafe-summary/completed/text()'  welcome-member-email-service/target/failsafe-reports/failsafe-summary.xml)
           FS_ERRORS=$(xpath -q -e 'failsafe-summary/errors/text()'  welcome-member-email-service/target/failsafe-reports/failsafe-summary.xml)
           FS_FAILURES=$(xpath -q -e 'failsafe-summary/failures/text()'  welcome-member-email-service/target/failsafe-reports/failsafe-summary.xml)
@@ -98,7 +98,7 @@ jobs:
           echo " ci.tests.build.failures=${FS_FAILURES}" >> $BUILDEVENT_FILE
           echo " ci.tests.build.skipped=${FS_SKIPPED}" >> $BUILDEVENT_FILE
           buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_ID
-          rm ${BUILDEVENTS_FILE}
+          rm ${BUILDEVENT_FILE}
 
       - name: Set variables for buildevents
         run: |
@@ -128,7 +128,7 @@ jobs:
       - name: "Honeycomb: Finalize Build special-membership-service"
         if: success() || failure()
         run: |
-          BUILDEVENTS_FILE="../local_buildevents.txt"
+          BUILDEVENT_FILE="../local_buildevents.txt"
           FS_COMPLETED=$(xpath -q -e 'failsafe-summary/completed/text()'  special-membership-service/target/failsafe-reports/failsafe-summary.xml)
           FS_ERRORS=$(xpath -q -e 'failsafe-summary/errors/text()'  special-membership-service/target/failsafe-reports/failsafe-summary.xml)
           FS_FAILURES=$(xpath -q -e 'failsafe-summary/failures/text()'  special-membership-service/target/failsafe-reports/failsafe-summary.xml)
@@ -138,7 +138,7 @@ jobs:
           echo " ci.tests.build.failures=${FS_FAILURES}" >> $BUILDEVENT_FILE
           echo " ci.tests.build.skipped=${FS_SKIPPED}" >> $BUILDEVENT_FILE
           buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_ID
-          rm ${BUILDEVENTS_FILE}
+          rm ${BUILDEVENT_FILE}
 
       - name: Set variables for buildevents
         run: |
@@ -161,7 +161,7 @@ jobs:
       - name: "Honeycomb: Finalize Build credit-score-service"
         if: success() || failure()
         run: |
-          BUILDEVENTS_FILE="../local_buildevents.txt"
+          BUILDEVENT_FILE="../local_buildevents.txt"
           FS_COMPLETED=$(xpath -q -e 'failsafe-summary/completed/text()'  credit-score-service/target/failsafe-reports/failsafe-summary.xml)
           FS_ERRORS=$(xpath -q -e 'failsafe-summary/errors/text()'  credit-score-service/target/failsafe-reports/failsafe-summary.xml)
           FS_FAILURES=$(xpath -q -e 'failsafe-summary/failures/text()'  credit-score-service/target/failsafe-reports/failsafe-summary.xml)
@@ -171,4 +171,4 @@ jobs:
           echo " ci.tests.build.failures=${FS_FAILURES}" >> $BUILDEVENT_FILE
           echo " ci.tests.build.skipped=${FS_SKIPPED}" >> $BUILDEVENT_FILE
           buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_ID
-          rm ${BUILDEVENTS_FILE}
+          rm ${BUILDEVENT_FILE}
