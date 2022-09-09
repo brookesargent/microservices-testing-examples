@@ -81,7 +81,7 @@ jobs:
     steps:
      - uses: technote-space/workflow-conclusion-action@v3
      - name: test
-       run: echo "${{ needs.build.outputs.trace-start }}"
+       run: echo "${{ needs.build.outputs.traceStart }}"
      - name: "Honeycomb: install buildevents"
        uses: honeycombio/gha-buildevents@brookesargent.multi-job-support
        with:
