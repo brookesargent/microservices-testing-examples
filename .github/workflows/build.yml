@@ -21,6 +21,11 @@ jobs:
         service: [welcome-member-email-service, special-membership-service, credit-score-service]
 
     steps:
+      - name: Set trace-start
+        id: set-trace-start
+        run: |
+          echo ::set-output name=trace-start::$(date +%s)
+        if: strategy.job-index == 0
       - uses: actions/checkout@v3
       - name: "Honeycomb: setup recording"
         uses: honeycombio/gha-buildevents@brookesargent.allow-multijob-trace
@@ -54,14 +59,6 @@ jobs:
           echo "STEP_ID=${STEP_ID}" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
 
-      - name: Set trace-start outputs
-        id: set-output
-        run: |
-          echo ::set-output name=trace-start::$STEP_START
-          echo $STEP_START
-
-        if: strategy.job-index == 0
-
       - name: Build service
         run: |
           .github/scripts/${{ matrix.service }}-build.sh
@@ -72,7 +69,7 @@ jobs:
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml down
         if: always()
     outputs:
-      traceStart: ${{ steps.set-output.outputs.trace-start }}
+      trace-start: ${{ steps.set-trace-start.outputs.trace-start }}
 
   end-trace:
     runs-on: ubuntu-latest
@@ -81,7 +78,7 @@ jobs:
     steps:
      - uses: technote-space/workflow-conclusion-action@v3
      - name: test
-       run: echo "${{ needs.build.outputs.traceStart }}"
+       run: echo "${{ needs.build.outputs.trace-start }}"
      - name: "Honeycomb: install buildevents"
        uses: honeycombio/gha-buildevents@brookesargent.multi-job-support
        with:
@@ -93,4 +90,4 @@ jobs:
          # Required: the job status, this will be used in the post section and sent
          #           as status of the trace. Must always be ${{ job.status }}.
          status: ${{ env.WORKFLOW_CONCLUSION }}
-         trace-start: ${{ needs.build.outputs.traceStart}}
+         trace-start: ${{ needs.build.outputs.trace-start}}
