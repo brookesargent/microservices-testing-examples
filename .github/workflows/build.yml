@@ -23,6 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: "Honeycomb: setup recording"
+        id: buildevents
         uses: honeycombio/gha-buildevents@brookesargent.allow-multijob-trace
         with:
           # Required: a Honeycomb API key - needed to send traces.
@@ -67,6 +68,8 @@ jobs:
       - name: Stop dependencies with docker-compose
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml down
         if: always()
+    outputs:
+      traceStart: ${{ steps.buildevents.outputs.trace-start }}
 
   end-trace:
     runs-on: ubuntu-latest
@@ -87,4 +90,4 @@ jobs:
          # Required: the job status, this will be used in the post section and sent
          #           as status of the trace. Must always be ${{ job.status }}.
          status: ${{ env.WORKFLOW_CONCLUSION }}
-         trace-start: ${{ needs.build.outputs.trace-start }}
+         trace-start: ${{ needs.build.outputs.traceStart}}
