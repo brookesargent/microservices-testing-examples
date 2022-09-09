@@ -22,7 +22,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: "Honeycomb: setup recording"
-        id: buildevents
         uses: honeycombio/gha-buildevents@brookesargent.allow-multijob-trace
         with:
           # Required: a Honeycomb API key - needed to send traces.
@@ -54,6 +53,11 @@ jobs:
           echo "STEP_ID=${STEP_ID}" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
           echo "TRACE_ID=${{steps.buildevents.outputs.trace-id}}" >> $GITHUB_ENV
+
+      - name: Set trace-start outputs
+        run: echo "::set-output name=trace-start::$STEP_START"
+        if: strategy.job-index == 1
+
       - name: Build service
         run: |
           .github/scripts/${{ matrix.service }}-build.sh
@@ -64,7 +68,6 @@ jobs:
         run: docker-compose -f pact-tools/pact-broker/docker-compose.yml down
         if: always()
     outputs:
-      trace-id: ${{ steps.buildevents.outputs.trace-id }}
       trace-start: ${{ steps.buildevents.outputs.start-timestamp}}
 
   end-trace:
@@ -84,5 +87,4 @@ jobs:
          # Required: the job status, this will be used in the post section and sent
          #           as status of the trace. Must always be ${{ job.status }}.
          status: ${{ env.WORKFLOW_CONCLUSION }}
-         trace-id: ${{ needs.build.outputs.trace-id }}
          trace-start: ${{ needs.build.outputs.trace-start }}
