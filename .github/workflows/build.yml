@@ -57,7 +57,7 @@ jobs:
 
       - name: Set trace-start outputs
         id: set-output
-        run: echo ::set-output name=trace-start::$STEP_START
+        run: echo ::set-output name=trace-start::$(echo $STEP_START)
         if: strategy.job-index == 0
 
       - name: Build service
