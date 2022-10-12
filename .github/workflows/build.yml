@@ -75,7 +75,7 @@ jobs:
       - run: |
           buildevents cmd matrix-parent-span $STEP_ID matrix-${{ matrix.value }} -- echo The matrix value is ${{ matrix.value }}
       - run: |
-          buildevents cmd $matrix-parent-span $STEP_ID sleep -- sleep 2
+          buildevents cmd matrix-parent-span $STEP_ID sleep -- sleep 2
     outputs:
       parent-span-start: ${{ steps.start-parent-span.outputs.step-start }}
 
