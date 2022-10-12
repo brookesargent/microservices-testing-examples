@@ -98,7 +98,7 @@ jobs:
           echo "STEP_ID=${STEP_ID}" >> $GITHUB_ENV
 
       - run: |
-          buildevents step $TRACE_ID $STEP_ID ${{ needs.matrix.outputs.step-start}} $STEP_ID
+          buildevents step $TRACE_ID $STEP_ID ${{ needs.matrix.outputs.parent-span-start}} $STEP_ID
 
   end-trace:
     name: End Trace
