@@ -22,7 +22,7 @@ jobs:
         run: |
           echo ::set-output name=trace-start::$(date +%s)          
       - name: Buildevents
-        uses: ./
+        uses: honeycombio/gha-buildevents@v2
         with:
           apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
           dataset: gha-buildevents_integration
