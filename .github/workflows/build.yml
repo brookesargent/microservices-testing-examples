@@ -86,15 +86,13 @@ jobs:
           matrix-key: ${{ matrix.value }}
 
       - run: |
-          STEP_ID=matrix-${{ matrix.value }}
+          STEP_ID=matrix-parent-span
           echo "STEP_ID=${STEP_ID}" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
       - run: |
-          buildevents cmd $TRACE_ID $STEP_ID ${{ matrix.value }} -- echo The matrix value is ${{ matrix.value }}
+          buildevents cmd $TRACE_ID $STEP_ID matrix-${{ matrix.value }} -- echo The matrix value is ${{ matrix.value }}
       - run: |
           buildevents cmd $TRACE_ID $STEP_ID sleep -- sleep 2
-      - run: |
-          buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_ID
 
   end-matrix-parent-span:
     name: End Matrix Parent span
