@@ -46,11 +46,29 @@ jobs:
     outputs:
       trace-start: ${{ steps.set-trace-start.outputs.trace-start }}
 
+  matrix-parent-span:
+    name: parent span
+    runs-on: ubuntu-latest
+    needs: [smoke-test]
+    steps:
+      - name: Buildevents
+        uses: honeycombio/gha-buildevents@v2
+        with:
+          apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
+          dataset: gha-buildevents_integration
+          matrix-key: ${{ matrix.value }}
+      - run: |
+          STEP_ID=matrix-parent-span
+          echo "STEP_ID=${STEP_ID}" >> $GITHUB_ENV
+          echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
+      
+      - run: |
+          buildevents cmd $TRACE_ID $STEP_ID matrix-parent-span -- echo start the matrix span
 
   matrix:
     name: Matrix
     runs-on: ubuntu-latest
-    needs: [smoke-test]
+    needs: [matrix-parent-span]
 
     strategy:
       fail-fast: false
@@ -77,6 +95,29 @@ jobs:
           buildevents cmd $TRACE_ID $STEP_ID sleep -- sleep 2
       - run: |
           buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_ID
+
+  end-matrix-parent-span:
+    name: End Matrix Parent span
+    runs-on: ubuntu-latest
+    needs: [matrix]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Buildevents
+        uses: honeycombio/gha-buildevents@v2
+        with:
+          apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
+          dataset: gha-buildevents_integration
+          matrix-key: ${{ matrix.value }}
+
+      - run: |
+          STEP_ID=matrix-parent-span
+          echo "STEP_ID=${STEP_ID}" >> $GITHUB_ENV
+          echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
+
+      - run: |
+          buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_ID
+
   end-trace:
     name: End Trace
     runs-on: ubuntu-latest
