@@ -61,7 +61,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Buildevents
-        uses: ./
+        uses: honeycombio/gha-buildevents@v2
         with:
           apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
           dataset: gha-buildevents_integration
@@ -86,7 +86,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: technote-space/workflow-conclusion-action@v3
       - name: Buildevents
-        uses: ./
+        uses: honeycombio/gha-buildevents@v2
         with:
           # Required: a Honeycomb API key - needed to send traces.
           #           this must be set in your GitHub repository under Settings > Secrets > Actions
