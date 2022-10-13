@@ -65,19 +65,17 @@ jobs:
           dataset: gha-buildevents_integration
           matrix-key: ${{ matrix.value }}
 
-      - name: start parent span
-        id: start-parent-span
-        run: |
+      - run: |
           STEP_ID=matrix-${{ matrix.value }}
           echo "STEP_ID=${STEP_ID}" >> $GITHUB_ENV
           echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
-          echo ::set-output name=step-start::$(date +%s)       
       - run: |
-          buildevents cmd matrix-parent-span $STEP_ID matrix-${{ matrix.value }} -- echo The matrix value is ${{ matrix.value }}
+          buildevents cmd $TRACE_ID $STEP_ID ${{ matrix.value }} -- echo The matrix value is ${{ matrix.value }}
       - run: |
-          buildevents cmd matrix-parent-span $STEP_ID sleep -- sleep 2
-    outputs:
-      parent-span-start: ${{ steps.start-parent-span.outputs.step-start }}
+          buildevents cmd $TRACE_ID $STEP_ID sleep -- sleep 2
+      - run: |
+          echo "trace.parent_id=matrix-parent-span}" >> $BUILDEVENT_FILE
+          buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_ID
 
   end-matrix-parent-span:
     name: End Matrix Parent span
@@ -96,10 +94,10 @@ jobs:
       - run: |
           STEP_ID=matrix-parent-span
           echo "STEP_ID=${STEP_ID}" >> $GITHUB_ENV
+          echo "STEP_START=$(date +%s)" >> $GITHUB_ENV
 
       - run: |
-          echo "trace.parent_id=${STEP_ID}" >> $BUILDEVENT_FILE
-          buildevents step $TRACE_ID $STEP_ID ${{ needs.matrix.outputs.parent-span-start}} $STEP_ID
+          buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_ID
 
   end-trace:
     name: End Trace
