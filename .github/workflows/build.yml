@@ -74,7 +74,7 @@ jobs:
       - run: |
           buildevents cmd $TRACE_ID $STEP_ID sleep -- sleep 2
       - run: |
-          echo "trace.parent_id=matrix-parent-span" >> $BUILDEVENT_FILE
+          echo " trace.parent_id=matrix-parent-span" >> $BUILDEVENT_FILE
           echo Contents of BUILDEVENT_FILE:
           cat $BUILDEVENT_FILE
           buildevents step $TRACE_ID $STEP_ID $STEP_START $STEP_ID
