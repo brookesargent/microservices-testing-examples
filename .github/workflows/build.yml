@@ -22,7 +22,7 @@ jobs:
         run: |
           echo ::set-output name=trace-start::$(date +%s)          
       - name: Buildevents
-        uses: honeycombio/gha-buildevents@2db63e1bf0b5c6428722cb36e4b7b0c24405db93
+        uses: honeycombio/gha-buildevents@29851c26040bfe47e663eb5199eca849341abd6b
         with:
           apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
           apiHost: https://api.eu1.honeycomb.io
