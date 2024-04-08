@@ -20,7 +20,7 @@ jobs:
       - name: Set trace-start
         id: set-trace-start
         run: |
-          echo ::set-output name=trace-start::$(date +%s)          
+          echo "trace-start=$(date +%s)" >> $GITHUB_OUTPUT
       - name: Buildevents
         uses: honeycombio/gha-buildevents@29851c26040bfe47e663eb5199eca849341abd6b
         with:
