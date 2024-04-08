@@ -25,7 +25,7 @@ jobs:
         uses: honeycombio/gha-buildevents@29851c26040bfe47e663eb5199eca849341abd6b
         with:
           apikey: ${{ secrets.BUILDEVENTS_APIKEY }}
-          apiHost: https://api.eu1.honeycomb.io
+          apiHost: https://api.honeycomb.io
           dataset: gha-buildevents_integration
 
       - name: Print contents of BUILDEVENT_FILE
